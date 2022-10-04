@@ -1,0 +1,99 @@
+﻿<div class="modal fade" tabindex="-1" role="dialog" id="modalProduct">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="modalTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-sm-12 row">
+                    <div class="col-sm-6 mt-2">
+                        <label>Nome</label>
+                        <input class="form-control form-control-sm" id="nameProduct" />
+                    </div>
+                    <div class="col-sm-6 mt-2">
+                        <label>Preço</label>
+                        <input class="form-control form-control-sm" id="priceProduct" />
+                    </div>
+                    <div class="col-sm-6 mt-2 d-none creationDate">
+                        <label>Cadastrado em</label>
+                        <input class="form-control form-control-sm" type="date" id="creationDateProduct" disabled />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" id="btnProduct">
+                <div id="btnInsertUpdate"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function openModalProduct(guid) {
+        loading();
+        $('#nameProduct').val('');
+        $('#priceProduct').val('');
+        $('#creationDateProduct').val('');
+        if(guid > 0){
+            let url = '@Url.Action("GetProduct", "Products")/' + guid;
+            $.get(url, (response) => {
+
+                if (!response.success) {
+                    showAlert(response.message, "alert", '@Url.Action("", "Companies")');
+                }
+                $('#modalTitle').text('Editar Produto');
+                $('#btnInsertUpdate').html('<button class="btn btn-sm btn-outline-primary ml-1" id="btnUpdate" onclick="updateProduct()"> Salvar </span></button>');
+                guidProduct = response.data.guid;
+                $('#nameProduct').val(response.data.description);
+                $('#priceProduct').val(response.data.price);
+                $('#creationDateProduct').val(moment(response.data.creation).format('YYYY-MM-DD'));
+                $('.creationDate').removeClass('d-none');
+                $('#modalProduct').modal('show');
+                loading(false);
+
+            });
+        }else{
+            $('#modalTitle').text('Novo Produto');
+            $('#btnInsertUpdate').html('<button class="btn btn-sm btn-outline-primary ml-1" id="btnInsert" onclick="insertProduct()"><span> Salvar </span></button>');
+            $('.creationDate').addClass('d-none');
+            $('#modalProduct').modal('show');
+            loading(false);
+        }
+    }
+
+    function insertCompany(){
+        var product = {}
+        product.Description = $('#nameProduct').val();
+        product.Price = $('#priceProduct').val();
+        let url = '@Url.Action("PostProduct", "Products")/';
+        $.post(url, product, (response) => {
+            debugger;
+            if (!response.success) {
+                showAlert(response.message, "alert");
+            }
+
+            showAlert(response.message, "success", '@Url.Action("","Products")')
+        });
+    }
+
+    function updateCompany(){
+        var company = {}
+        company.id = idCompany;
+        company.TradeName = $('#nameProduct').val();
+        company.Description = $('#priceProduct').val();
+        company.CreatedAt = $('#creationDateProduct').val();
+        let url = '@Url.Action("PutProduct", "Products")/';
+        $.post(url, company, (response) => {
+
+            if (!response.success) {
+                showAlert(response.message, "alert");
+            }
+
+            showAlert(response.message, "success", '@Url.Action("","Products")')
+        });
+    }
+
+</script>

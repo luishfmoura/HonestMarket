@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Produtos";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Produtos</h1>
+    <p>Aqui você cadastra e edita seus produtos!</p>
+</div>
+
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="table table-striped table-responsive" id="product"></div>
+        </div>
+    </div>
+</div>
+
+<partial name="~/Views/Partial/_PartialProduct.cshtml" />
+
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var guidProduct = 0;
+
+        $(document).ready(() => {
+            loading();
+            let url = '@Url.Action("GetProducts", "Products")';
+            let columns = [
+                {
+                    data: "description",
+                    title: "Descrição"
+                },
+                {
+                    data: "price",
+                    title: "Preço"
+                },
+                {
+                    data: "creation",
+                    title: "Cadastrado em",
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        return moment(data).format("DD/MM/YYYY");
+                    }
+                },
+                {
+                    className: "text-center",
+                    render: function (data, type, row) {
+                        let btnEdit = "<button class='btn btn-sm btn-outline-primary' onclick='openModalProduct(`" + row["guid"] + "`)' title='Editar'>" +
+                            "<span>Editar</span> " +
+                            "</button>";
+
+                        let btnRemove = "<button onclick='RemoveProduct(`" + row["guid"] + "`)' class='btn btn-sm btn-outline-danger'>" +
+                            "<span>Remover</span> " +
+                            "</button>";
+
+                        return btnEdit + btnRemove;
+                    }
+                }
+            ];
+
+            let div = $('#product');
+            let data = [];
+            $.get(url, (response) => {
+                if (!response.success) {
+                    showAlert(response.message, "alert");
+                }
+                else {
+                    data = response.data;
+                }
+
+                createDataTable(div, columns, data);
+            });
+        });
+
+        function RemoveProduct(guid) {
+            debugger;
+            loading();
+            let url = '@Url.Action("RemoveProduct", "Products")?guid=' + guid;
+            $.get(url, (response) => {
+                debugger;
+                if (!response.success) {
+                    showAlert(response.message, "alert", '@Url.Action("", "Products")');
+                }
+
+                showAlert(response.message, "success", '@Url.Action("", "Products")');
+            });
+        }
+    </script>
+
+}
+
